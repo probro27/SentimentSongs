@@ -37,7 +37,7 @@ function FileUploads() {
     const formData = new FormData();
     formData.append('file', files, files.name);
     formData.append('username', username);
-    console.log(formData);
+    // console.log(formData);
     await axios
       .post(
         'https://emotion-recognizer-model.herokuapp.com/api/audio',
