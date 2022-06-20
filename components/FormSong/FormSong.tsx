@@ -3,13 +3,16 @@ import { useForm } from '@mantine/form';
 import { Box, TextInput, Button, Group, Text, useMantineTheme, MantineTheme } from '@mantine/core';
 import { Upload, Photo, X, Icon as TablerIcon } from 'tabler-icons-react';
 import { Dropzone, DropzoneStatus } from '@mantine/dropzone';
+import axios from 'axios';
+
 
 function FormSong() {
   const [file, setFile] = useState<File>();
-//   const [isFileReceived, setIsFileReceived] = useState(false);
+  const [isFileReceived, setIsFileReceived] = useState(false);
+  const [uriReceived, setUriReceived] = useState('');
   const Form = useForm<{ username: string }>({
     initialValues: { username: '' },
-    validate: (values) => ({
+    validate: (values: { username: string }) => ({
       username:
         values.username.length < 3 ? 'Username must be at least 3 characters long' : undefined,
     }),
@@ -56,10 +59,11 @@ function FormSong() {
     setFile(files[0]);
   };
 
-   const onFormSubmit = (values: { username: string }) => {
+   const onFormSubmit = async (values: { username: string }) => {
     console.log(values);
     if (!file) {
         alert('Please upload a file');
+        return;
     }
     if (!values) {
         alert('Please enter a username');
@@ -70,7 +74,22 @@ function FormSong() {
     const formData = new FormData();
     formData.append('file', file, file.name);
     formData.append('username', values.username);
-    console.log(formData);
+    formData.forEach((object) => {
+      console.log(object);
+    });
+    await axios
+      .post(
+        'https://emotion-recognizer-model.herokuapp.com/api/audio',
+        formData
+      )
+      .then((res) => {
+        setIsFileReceived(true);
+        setUriReceived(res.data.uri);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+      return setIsFileReceived(true);
    };
   const theme = useMantineTheme();
   return (
